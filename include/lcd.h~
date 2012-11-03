@@ -21,8 +21,16 @@ Sends buffered instructions to the LCD screen. Returns 0 on failure, 1 on succes
 int LCD_Write( void );
 
 /**
-Helper procedure to clear the LCD's screen correctly with the R character set.
+Helper procedure to clear the LCD's screen correctly with the R character set. Returns 0 on failure, 1 on success.
+@return success/failure
 */
 int LCD_ClearScreen( void );
+
+/**
+Helper procedure to write a C string to the LCD screen. Returns 0 on failure, 1 on success/
+@param string to write to the screen
+@return success/failure
+*/
+int LCD_WriteString( char *str );
 
 #endif //LCD_H

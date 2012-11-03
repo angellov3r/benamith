@@ -12,7 +12,7 @@ Adds an instruction to the instruction buffer. Returns 0 on failure, 1 on succes
 @param the instruction to add
 @return success/failure
 */
-int LCD_AddInstr( uint8_t instr )
+int LCD_AddInstr( uint8_t instr );
 
 /**
 Sends buffered instructions to the LCD screen. Returns 0 on failure, 1 on success.
@@ -25,5 +25,12 @@ Helper procedure to clear the LCD's screen correctly with the R character set. R
 @return success/failure
 */
 int LCD_ClearScreen( void );
+
+/**
+Helper procedure to write a C string to the LCD screen. Returns 0 on failure, 1 on success/
+@param string to write to the screen
+@return success/failure
+*/
+int LCD_WriteString( char *str );
 
 #endif //LCD_H

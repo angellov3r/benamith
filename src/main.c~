@@ -42,7 +42,7 @@ int main( void )
 	LCD_Clear();
 
 	//"Hello, world!"
-	LCD_AddInstr( CONTROLBYTE | CONTROLBYTE_RS );
+	/*LCD_AddInstr( CONTROLBYTE | CONTROLBYTE_RS );
 	LCD_AddInstr( CHAR_UPPER | CHAR_H );
 	LCD_AddInstr( CHAR_LOWER | CHAR_E );
 	LCD_AddInstr( CHAR_LOWER | CHAR_L );
@@ -56,7 +56,9 @@ int main( void )
 	LCD_AddInstr( CHAR_LOWER | CHAR_L );
 	LCD_AddInstr( CHAR_LOWER | CHAR_D );
 	LCD_AddInstr( CHAR_EXCLAM );
-	LCD_Write();
+	LCD_Write();*/
+
+	LCD_WriteString( "Hello, world!?" );
 
 	//Last control byte, reset cursor position
 	LCD_AddInstr( CONTROLBYTE | CONTROLBYTE_CO );
@@ -67,5 +69,5 @@ int main( void )
 	{
 	}
 
-	return 1;
+	return 0;
 }
