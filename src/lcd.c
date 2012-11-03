@@ -101,6 +101,10 @@ int LCD_AddInstr( uint8_t instr )
 		memset( newList, 0, sizeof( uint8_t ) * newSize );
 		memcpy( newList, instrList, sizeof( uint8_t ) * sizeInstrList ); //Copy values from old list into the new list.
 
+		#ifdef DEBUG
+		sprintf( debugCBuff, "Deallocating %d bytes for old instruction buffer..\n", sizeInstrList );
+		_DBG_( debugCBuff );
+		#endif //DEBUG		
 		free( instrList ); //Deallocate memory for the old list.
 		
 		//Update all of our globals.
@@ -111,6 +115,11 @@ int LCD_AddInstr( uint8_t instr )
 	instrList[ numInstr ] = instr;
 	numInstr++;
 
+	#ifdef DEBUG
+	sprintf( debugCBuff, "Added instruction 0x%x to buffer (#%d in batch ).\n", instr, numInstr );
+	_DBG_( debugCBuff );
+	#endif //DEBUG
+
 	return 1;
 }
 
@@ -118,16 +127,31 @@ int LCD_Write( void )
 {
 	if ( numInstr == 0 ) //No instructions to send!
 	{
+		#ifdef DEBUG
+		_DBG_( "Warning: Attempted to send buffered instructions but the buffer is empty!" );
+		#endif //DEBUG
+
 		return 0;
 	}
 
 	trans.tx_data = instrList;
 	trans.tx_length = sizeof( uint8_t ) * numInstr;
 
+	#ifdef DEBUG
+	char debugCBuff[ 100 ];
+	sprintf( debugCBuff, "Attempting to send %d buffered instructions..\n", numInstr );
+	_DBG_( debugCBuff );
+	#endif //DEBUG
+
 	Status status = I2C_MasterTransferData( LPC_I2C1, &trans, I2C_TRANSFER_POLLING );
 
 	if ( status == SUCCESS )
 	{
+
+		#ifdef DEBUG
+		_DBG_( "Successfully sent buffered instructions. Clearing buffer..\n" );
+		#endif //DEBUG
+
 		//Clear out the instruction buffer
 		memset( instrList, 0, sizeof( uint8_t ) * newSize );
 		numInstr = 0;
@@ -136,6 +160,10 @@ int LCD_Write( void )
 	}
 	else
 	{
+		#ifdef DEBUG
+		_DBG_( "Error! Couldn't send buffered instructions correctly/at all!\n" );
+		#endif //DEBUG
+
 		return 0;
 	}
 }
