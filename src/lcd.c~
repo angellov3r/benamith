@@ -1,4 +1,5 @@
 #include "lcd.h"
+#include "lcdinstr.h"
 
 #include "LPC17xx.h"
 #include "lpc17xx_i2c.h"
@@ -85,6 +86,15 @@ int LCD_AddInstr( uint8_t instr )
 	_DBG_( debugCBuff );
 	#endif //DEBUG
 
+	if ( !initialised )
+	{
+		#ifdef DEBUG
+		_DBG_( "Error: Tried to add instruction to instruction buffer without initialising!\n" );
+		#endif //DEBUG		
+
+		return 0;
+	}
+
 	if ( numInstr == sizeInstrList ) //We've run out of memory, allocate some more.
 	{
 		#ifdef DEBUG
@@ -125,6 +135,15 @@ int LCD_AddInstr( uint8_t instr )
 
 int LCD_Write( void )
 {
+	if ( !initialised )
+	{
+		#ifdef DEBUG
+		_DBG_( "Error: Tried to send buffered instructions without initialising!\n" );
+		#endif //DEBUG		
+
+		return 0;
+	}
+
 	if ( numInstr == 0 ) //No instructions to send!
 	{
 		#ifdef DEBUG
@@ -160,6 +179,167 @@ int LCD_Write( void )
 	}
 	else
 	{
+		#ifdef DEBUG
+		_DBG_( "Error! Couldn't send buffered instructions correctly/at all!\n" );
+		#endif //DEBUG
+
 		return 0;
 	}
+}
+
+int LCD_ClearScreen( void )
+{
+	LCD_AddInstr( CONTROLBYTE | CONTROLBYTE_RS );
+
+	int res = 1;
+
+	int i;
+	for ( i = 0; spaceI < 32; spaceI++ )
+	{
+		res = res && LCD_AddInstr( CHAR_SPACE );
+	}
+
+	//Reset cursor position.
+	res = res && LCD_AddInstr( CONTROLBYTE );
+	res = res && LCD_AddInstr( RETURNHOME );
+
+	if ( res )
+	{
+		return LCD_Write();
+	}
+	else
+	{
+		#ifdef DEBUG
+		_DBG_( "Error: Failed adding instructions to buffer while attempting to clear screen.\n" );
+		#endif //DEBUG
+
+		return 0;
+	}
+}
+
+//Oh god this is gonna be horrible..
+int LCD_WriteString( char *str )
+{
+	LCD_AddInstr( CONTROLBYTE | CONTROLBYTE_RS );
+
+	while ( *str != '\0' )
+	{
+
+		char c = *str;
+		uint8_t code = 0;
+
+		if ( 'a' <= c <= 'o' )
+		{
+			code = c - 'a' + 1;
+			LCD_AddInstr( CHAR_LOWER | code );
+		}
+		else if ( 'p' <= c <= 'z' )
+		{
+			code = c - 'p' + 0x10;
+			LCD_AddInstr( CHAR_LOWER | code );
+		}
+		else if ( 'A' <= c <= 'O' )
+		{
+			code = c - 'A' + 1;
+			LCD_AddInstr( CHAR_UPPER | code );
+		}
+		else if ( 'P' <= c <= 'Z' )
+		{
+			code = c - 'P' + 0x10;
+			LCD_AddInstr( CHAR_UPPER | code );
+		}
+		else if ( '0' <= c <= '9' )
+		{
+			code = c - '0' + 0xB0;
+			LCD_AddInstr( code );
+		}
+		else
+		{
+			switch ( c )
+			{
+			case ' ':
+				LCD_AddInstr( CHAR_SPACE );
+				break;
+			case '@':
+				LCD_AddInstr( CHAR_AT );
+				break;
+			case '£':
+				LCD_AddInstr( CHAR_POUND );
+				break;
+			case '$':
+				LCD_AddInstr( CHAR_DOLLAR );
+				break;
+			case '!':
+				LCD_AddInstr( CHAR_EXCLAM );
+				break;
+			case '"':
+				LCD_AddInstr( CHAR_DBLQUOTE );
+				break;
+			case '#':
+				LCD_AddInstr( CHAR_HASH );
+				break;
+			case '%':
+				LCD_AddInstr( CHAR_PERCENT );
+				break;
+			case '&':
+				LCD_AddInstr( CHAR_AMPERS );
+				break;
+			case '\'':
+				LCD_AddInstr( CHAR_SGLQUOTE );
+				break;
+			case '(':
+				LCD_AddInstr( CHAR_LBRACKET );
+				break;
+			case ')':
+				LCD_AddInstr( CHAR_RBRACKET );
+				break;
+			case '*':
+				LCD_AddInstr( CHAR_ASTERIX );
+				break;
+			case '+':
+				LCD_AddInstr( CHAR_PLUS );
+				break;
+			case ',':
+				LCD_AddInstr( CHAR_COMMA );
+				break;
+			case '-':
+				LCD_AddInstr( CHAR_MINUS );
+				break;
+			case '.':
+				LCD_AddInstr( CHAR_PERIOD );
+				break;
+			case ':':
+				LCD_AddInstr( CHAR_COLON );
+				break;
+			case ';':
+				LCD_AddInstr( CHAR_SEMI );
+				break;
+			case '<':
+				LCD_AddInstr( CHAR_LESS );
+				break;
+			case '>':
+				LCD_AddInstr( CHAR_GREATER );
+				break;
+			case '=':
+				LCD_AddInstr( CHAR_EQUALS );
+				break;
+			case '?':
+				LCD_AddInstr( CHAR_QUESTION );
+				break;
+			default:
+				#ifdef DEBUG
+				char buff[ 100 ];
+				sprintf( buff, "Warning: Couldn't match character '%c'\n", c );
+				_DBG_( buff );
+				#endif //DEBUG
+				break;
+			}
+		}
+
+		str++;
+	}
+
+	LCD_Write();
+	
+	return 1l	
 }
