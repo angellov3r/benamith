@@ -8,6 +8,7 @@
 #include "debug_frmwrk.h"
 
 #include "lcd.h"
+#include "lcdinstr.h"
 
 int main( void )
 {
@@ -28,6 +29,7 @@ int main( void )
 	LCD_AddInstr( X_SETVLCD | voltage );
 	LCD_AddInstr( X_SETVLCD | X_SETVLCD_V | voltage );
 	LCD_Write();
+	//Actually clear the screen.
 
 	//Turn on display, configure it, clear it (ish..) and set up entry mode.
 	LCD_AddInstr( CONTROLBYTE );
@@ -39,32 +41,15 @@ int main( void )
 	LCD_Write();
 
 	//Actually clear the screen.
-	LCD_Clear();
+	LCD_ClearScreen();
 
-	//"Hello, world!"
-	/*LCD_AddInstr( CONTROLBYTE | CONTROLBYTE_RS );
-	LCD_AddInstr( CHAR_UPPER | CHAR_H );
-	LCD_AddInstr( CHAR_LOWER | CHAR_E );
-	LCD_AddInstr( CHAR_LOWER | CHAR_L );
-	LCD_AddInstr( CHAR_LOWER | CHAR_L );
-	LCD_AddInstr( CHAR_LOWER | CHAR_O );
-	LCD_AddInstr( CHAR_COMMA );
-	LCD_AddInstr( CHAR_SPACE );
-	LCD_AddInstr( CHAR_LOWER | CHAR_W );
-	LCD_AddInstr( CHAR_LOWER | CHAR_O );
-	LCD_AddInstr( CHAR_LOWER | CHAR_R );
-	LCD_AddInstr( CHAR_LOWER | CHAR_L );
-	LCD_AddInstr( CHAR_LOWER | CHAR_D );
-	LCD_AddInstr( CHAR_EXCLAM );
-	LCD_Write();*/
-
-	LCD_WriteString( "Hello, world!" );
+	LCD_WriteString( "012lnkjhigh9" );
 
 	//Last control byte, reset cursor position
 	LCD_AddInstr( CONTROLBYTE | CONTROLBYTE_CO );
 	LCD_AddInstr( RETURNHOME );
 	LCD_Write();
-
+	
 	while ( 1 )
 	{
 	}

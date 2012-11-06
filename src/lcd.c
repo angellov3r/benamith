@@ -5,6 +5,10 @@
 #include "lpc17xx_i2c.h"
 #include "lpc17xx_pinsel.h"
 
+#include "debug_frmwrk.h"
+
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 int initialised = 0;
@@ -15,15 +19,16 @@ int numInstr = 0;
 int sizeInstrList = 0;
 
 I2C_M_SETUP_Type trans;
-trans.sl_addr7bit = 0x3b;
-trans.tx_data = ( uint8_t * ) NULL;
-trans.tx_length = sizeof( uint8_t );
-trans.rx_data = &rxBuff;
-trans.rx_length = sizeof( rxBuff );
-trans.retransmissions_max = 2;
 
 int LCD_Init( void )
 {
+	trans.sl_addr7bit = 0x3b;
+	trans.tx_data = ( uint8_t * ) NULL;
+	trans.tx_length = sizeof( uint8_t );
+	trans.rx_data = &rxBuff;
+	trans.rx_length = sizeof( rxBuff );
+	trans.retransmissions_max = 2;
+
 	//Configure the I2C lines
 	PINSEL_CFG_Type pin;
 	pin.OpenDrain = PINSEL_PINMODE_NORMAL;
@@ -46,7 +51,7 @@ int LCD_Init( void )
 
 	#ifdef DEBUG
 	char debugCBuff[ 100 ];
-	sprintf( debugCBuff, "Attempting to communicate with LCD screen at address 0x%x.\n", trans.sl_addr7bit );
+	sprintf( debugCBuff, "Attempting to communicate with LCD screen at address 0x%x.\n", ( unsigned int ) trans.sl_addr7bit );
 	_DBG_( debugCBuff );
 	#endif //DEBUG
 
@@ -172,7 +177,7 @@ int LCD_Write( void )
 		#endif //DEBUG
 
 		//Clear out the instruction buffer
-		memset( instrList, 0, sizeof( uint8_t ) * newSize );
+		memset( instrList, 0, sizeof( uint8_t ) * numInstr );
 		numInstr = 0;
 
 		return 1;
@@ -194,10 +199,12 @@ int LCD_ClearScreen( void )
 	int res = 1;
 
 	int i;
-	for ( i = 0; spaceI < 32; spaceI++ )
+	for ( i = 0; i < 32; i++ )
 	{
 		res = res && LCD_AddInstr( CHAR_SPACE );
 	}
+
+	res = res && LCD_Write();
 
 	//Reset cursor position.
 	res = res && LCD_AddInstr( CONTROLBYTE );
@@ -220,35 +227,38 @@ int LCD_ClearScreen( void )
 //Oh god this is gonna be horrible..
 int LCD_WriteString( char *str )
 {
+	#ifdef DEBUG
+	char buff[ 100 ];
+	#endif //DEBUG	
+
 	LCD_AddInstr( CONTROLBYTE | CONTROLBYTE_RS );
 
 	while ( *str != '\0' )
 	{
-
 		char c = *str;
 		uint8_t code = 0;
 
-		if ( 'a' <= c <= 'o' )
+		if ( 'a' <= c && c <= 'o' )
 		{
 			code = c - 'a' + 1;
 			LCD_AddInstr( CHAR_LOWER | code );
 		}
-		else if ( 'p' <= c <= 'z' )
+		else if ( 'p' <= c && c <= 'z' )
 		{
 			code = c - 'p' + 0x10;
 			LCD_AddInstr( CHAR_LOWER | code );
 		}
-		else if ( 'A' <= c <= 'O' )
+		else if ( 'A' <= c && c <= 'O' )
 		{
 			code = c - 'A' + 1;
 			LCD_AddInstr( CHAR_UPPER | code );
 		}
-		else if ( 'P' <= c <= 'Z' )
+		else if ( 'P' <= c && c <= 'Z' )
 		{
 			code = c - 'P' + 0x10;
 			LCD_AddInstr( CHAR_UPPER | code );
 		}
-		else if ( '0' <= c <= '9' )
+		else if ( '0' <= c && c <= '9' )
 		{
 			code = c - '0' + 0xB0;
 			LCD_AddInstr( code );
@@ -262,9 +272,6 @@ int LCD_WriteString( char *str )
 				break;
 			case '@':
 				LCD_AddInstr( CHAR_AT );
-				break;
-			case '£':
-				LCD_AddInstr( CHAR_POUND );
 				break;
 			case '$':
 				LCD_AddInstr( CHAR_DOLLAR );
@@ -328,7 +335,6 @@ int LCD_WriteString( char *str )
 				break;
 			default:
 				#ifdef DEBUG
-				char buff[ 100 ];
 				sprintf( buff, "Warning: Couldn't match character '%c'\n", c );
 				_DBG_( buff );
 				#endif //DEBUG

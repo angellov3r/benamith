@@ -1,6 +1,8 @@
 #ifndef LCD_H
 #define LCD_H
 
+#include "LPC17xx.h"
+
 /**
 Initialises the I2C bus. Returns 0 on failure, 1 on success.
 @return success/failure
