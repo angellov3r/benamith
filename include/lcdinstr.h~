@@ -7,7 +7,7 @@ USAGE: Reference the relevant instruction, and bitwise OR ( | ) it with any addi
 #ifndef LCDINSTR_H
 #define LCDINSTR_H
 
-#define		NOOP			0b00000000
+#define		NOOP			0b0000000
 
 #define		CONTROLBYTE		0b00000000 //Use to set which register you need to write to (see below)
 #define		CONTROLBYTE_CO			0b10000000 //If unset, more control bytes will follow this one at some point. Set if this is the last control byte.

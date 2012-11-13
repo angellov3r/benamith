@@ -27,7 +27,7 @@ int LCD_Init( void )
 	trans.tx_length = sizeof( uint8_t );
 	trans.rx_data = &rxBuff;
 	trans.rx_length = sizeof( rxBuff );
-	trans.retransmissions_max = 2;
+	trans.retransmissions_max = 100;
 
 	//Configure the I2C lines
 	PINSEL_CFG_Type pin;
@@ -135,7 +135,24 @@ int LCD_AddInstr( uint8_t instr )
 	_DBG_( debugCBuff );
 	#endif //DEBUG
 
+	if ( instr == CLEARDISPLAY )
+	{	
+		LCD_AddInstr( NOOP );
+		LCD_AddInstr( NOOP );
+		LCD_AddInstr( NOOP );
+		LCD_AddInstr( NOOP );
+		LCD_AddInstr( NOOP );
+		LCD_AddInstr( NOOP );
+		LCD_AddInstr( NOOP );
+		LCD_AddInstr( NOOP );
+	}
+
 	return 1;
+}
+
+int LCD_IsBusy( void )
+{
+	return 0;
 }
 
 int LCD_Write( void )

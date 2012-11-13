@@ -7,6 +7,7 @@
 
 #include "debug_frmwrk.h"
 
+#define DEBUG
 #include "lcd.h"
 #include "lcdinstr.h"
 
@@ -34,7 +35,6 @@ int main( void )
 	//Turn on display, configure it, clear it (ish..) and set up entry mode.
 	LCD_AddInstr( CONTROLBYTE );
 	LCD_AddInstr( FUNCTIONSET | FUNCTIONSET_DL );
-	LCD_AddInstr( CLEARDISPLAY);
 	LCD_AddInstr( RETURNHOME );
 	LCD_AddInstr( ENTRYMODESET | ENTRYMODESET_ID );
 	LCD_AddInstr( DISPLAYCONTROL | DISPLAYCONTROL_D );

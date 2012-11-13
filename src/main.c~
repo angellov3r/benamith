@@ -7,10 +7,9 @@
 
 #include "debug_frmwrk.h"
 
+#define DEBUG
 #include "lcd.h"
 #include "lcdinstr.h"
-
-#include "keypad.h"
 
 int main( void )
 {
@@ -36,27 +35,22 @@ int main( void )
 	//Turn on display, configure it, clear it (ish..) and set up entry mode.
 	LCD_AddInstr( CONTROLBYTE );
 	LCD_AddInstr( FUNCTIONSET | FUNCTIONSET_DL );
-	LCD_AddInstr( CLEARDISPLAY);
+	//LCD_AddInstr( CLEARDISPLAY);
 	LCD_AddInstr( RETURNHOME );
 	LCD_AddInstr( ENTRYMODESET | ENTRYMODESET_ID );
-	LCD_AddInstr( DISPLAYCONTROL | DISPLAYCONTROL_D );
+	LCD_AddInstr( CLEARDISPLAY);
+	LCD_AddInstr( DISPLAYCONTROL | DISPLAYCONTROL_B | DISPLAYCONTROL_C | DISPLAYCONTROL_D );
 	LCD_Write();
 
 	//Actually clear the screen.
 	LCD_ClearScreen();
 
+	LCD_WriteString( "Yo yo yo whats the happy haps" );
+
 	//Last control byte, reset cursor position
 	LCD_AddInstr( CONTROLBYTE | CONTROLBYTE_CO );
 	LCD_AddInstr( RETURNHOME );
 	LCD_Write();
-
-	Keypad_Init();
-	
-	char buff[ 100 ];
-	sprintf( buff, "TEST: %c\n", Keypad_GetInput() );
-	_DBG_( buff );
-	sprintf( buff, "TEST: %c\n", Keypad_GetInput() );
-	_DBG_( buff );
 	
 	while ( 1 )
 	{
@@ -64,3 +58,4 @@ int main( void )
 
 	return 0;
 }
+

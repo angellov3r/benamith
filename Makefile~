@@ -23,25 +23,28 @@ LDSCRIPT = $(CMSIS)/lib/ldscript_rom_gnu.ld
 CFLAGS=-mcpu=cortex-m3  -mthumb  -Wall  -O0  -mapcs-frame  -D__thumb2__=1 \
   -msoft-float  -gdwarf-2  -mno-sched-prolog  -fno-hosted  -mtune=cortex-m3 \
   -march=armv7-m  -mfix-cortex-m3-ldrd   -ffunction-sections  -fdata-sections \
-          -D__RAM_MODE__=0 $(CMSISINCLUDES) -I. 
+          -D__RAM_MODE__=0 $(CMSISINCLUDES) -I./include 
 
 LDFLAGS=$(CMSISFL) -static -mcpu=cortex-m3 -mthumb -mthumb-interwork \
 	   -Wl,--start-group -L$(THUMB2GNULIB) -L$(THUMB2GNULIB2) \
            -lc -lg -lstdc++ -lsupc++  -lgcc -lm  -Wl,--end-group \
-	   -Xlinker -Map -Xlinker bin/lpc1700.map -Xlinker -T $(LDSCRIPT)
+	   -Xlinker -Map -Xlinker bin/lpc1700.map -Xlinker -T $(LDSCRIPT) \
+	    -I ./include
 
 LDFLAGS+=-L$(CMSIS)/lib -lDriversLPC17xxgnu
 
-EXECNAME	= bin/main
+EXECNAME	= bin/libenamith.a
 
-OBJ		= src/main.o src/lcd.o
+OBJ		= src/keypad.o src/lcd.o
 
 all: 	main
 	@echo "Build finished"
 
 
 main: $(OBJ)
-	$(CC) -o $(EXECNAME) $(OBJ) $(LDFLAGS)
+	$(CC) -c src/keypad.c -o src/keypad.o $(LDFLAGS)
+	$(CC) -c src/lcd.c -o src/lcd.o $(LDFLAGS)
+	ar rcs $(EXECNAME) src/lcd.o src/keypad.o
 	$(OBJCOPY) -I elf32-little -O binary $(EXECNAME) $(EXECNAME).bin
 
 # clean out the source tree ready to re-build
