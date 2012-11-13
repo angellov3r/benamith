@@ -43,7 +43,7 @@ int main( void )
 	//Actually clear the screen.
 	LCD_ClearScreen();
 
-	LCD_WriteString( "012lnkjhigh9" );
+	LCD_WriteString( "Yo yo yo whats the happy haps" );
 
 	//Last control byte, reset cursor position
 	LCD_AddInstr( CONTROLBYTE | CONTROLBYTE_CO );
@@ -56,3 +56,4 @@ int main( void )
 
 	return 0;
 }
+
