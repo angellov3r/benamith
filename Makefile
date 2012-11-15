@@ -4,6 +4,7 @@ USR=$(shell whoami)
 
 ARCH=arm-none-eabi
 CC=$(ARCH)-gcc
+AR=$(ARCH)-ar crv
 HCC	= /usr/bin/gcc
 OBJCOPY=$(ARCH)-objcopy
 
@@ -34,27 +35,28 @@ LDFLAGS+=-L$(CMSIS)/lib -lDriversLPC17xxgnu
 
 EXECNAME	= bin/main
 
-OBJ		= src/main.o src/lcd.o
+SRC		= src/lcd.c src/keypad.c
+OBJ		= keypad.o lcd.o
 
 all: 	main
 	@echo "Build finished"
 
 
-main: $(OBJ)
-	$(CC) -o $(EXECNAME) $(OBJ) $(LDFLAGS)
-	$(OBJCOPY) -I elf32-little -O binary $(EXECNAME) $(EXECNAME).bin
+#main: $(OBJ)
+#	$(CC) -o $(EXECNAME) $(OBJ) $(LDFLAGS)
+#	$(OBJCOPY) -I elf32-little -O binary $(EXECNAME) $(EXECNAME).bin
+
+BENJYCCOPTS = -I ./include $(CMSISINCLUDES)
+
+main: 	
+	$(CC) -c $(BENJYCCOPTS) $(LDFLAGS) $(SRC)
+	$(AR) build/libenamith.a $(OBJ)
 
 # clean out the source tree ready to re-build
 clean:
 	rm -f `find . | grep \~`
 	rm -f *.swp *.o */*.o */*/*.o  *.log
 	rm -f *.d */*.d *.srec */*.a bin/*.map
-	rm -f *.elf *.wrn bin/*.bin log *.hex
+	rm -f *.elf *.wrn bin/*.a log *.hex
 	rm -f $(EXECNAME)
-# install software to board, remember to sync the file systems
-install:
-	@echo "Copying " $(EXECNAME) "to the MBED file system"
-	cp $(EXECNAME).bin /run/media/$(USR)/MBED &
-	sync
-	@echo "Now press the reset button on all MBED file systems"
 

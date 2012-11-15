@@ -364,5 +364,10 @@ int LCD_WriteString( char *str )
 
 	LCD_Write();
 	
+	//LCD automatically puts a space in for us, shift it back!	
+	LCD_AddInstr( CONTROLBYTE );
+	LCD_AddInstr( CURSORDISPLAYSHIFT );
+	LCD_Write();
+	
 	return 1;	
 }
