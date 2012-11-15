@@ -122,7 +122,7 @@ char decode_keypad( uint8_t data )
 		#ifdef DEBUG
 		_DBG_( "Warning: Row or column data was not transmitted!\n" );
 		#endif //DEBUG
-		return 'X';
+		return 'X'; //lol
 	}
 	else
 	{
