@@ -125,7 +125,7 @@ char decode_keypad( uint8_t data )
 		return 'X';
 	}
 	else
-	{
+	{ //Tom edited this
 		#ifdef DEBUG		
 		char buff[ 100 ];
 		sprintf( buff, "Successfully decoded keypad data, character: %c\n", keypad[ row ][ col ] );
